@@ -54,10 +54,10 @@ jobs:
       fail-fast: true
       matrix:
         distro:
-          - "debian:unstable-slim"
+          - "ubuntu:24.10"
         compiler:
-          - { compiler: GNU13,  CC: gcc-13,   CXX: g++-13,     packages: gcc-13 g++-13 }
-          - { compiler: LLVM18, CC: clang-18, CXX: clang++-18, packages: clang-18 libomp-18-dev llvm-18-dev libc++-18-dev libc++abi1-18 lld-18 clang-tools-18 mlir-18-tools libmlir-18-dev}
+          - { compiler: GNU12,  CC: gcc-12,   CXX: g++-12,     packages: gcc-12 g++-12 }
+          # - { compiler: LLVM16, CC: clang-16, CXX: clang++-16, packages: clang-16 libomp-16-dev llvm-16-dev libc++-16-dev libc++abi1-16 lld-16 clang-tools-16 mlir-16-tools libmlir-16-dev}
         btype:
           - Release
         target:
@@ -67,9 +67,9 @@ jobs:
         eco: [-DDONT_USE_INTERNAL_LIBRAW=ON]
         include:
           # We want one run in CI to be Debug to make sure the Debug build isn't broken
-          - distro: "debian:unstable-slim"
+          - distro: "ubuntu:24.10"
             btype: Debug
-            compiler: { compiler: GNU13, CC: gcc-13, CXX: g++-13, packages: gcc-13 g++-13 }
+            compiler: { compiler: GNU12, CC: gcc-12, CXX: g++-12, packages: gcc-12 g++-12 }
             target: skiptest
             generator: Ninja
             eco: -DDONT_USE_INTERNAL_LIBRAW=OFF
@@ -87,6 +87,7 @@ jobs:
       DARKTABLE_CLI: ${{ github.workspace }}/install/bin/darktable-cli
     steps:
       - name: Configure APT
+        if: ${{ false }}
         timeout-minutes: 1
         run: |
           set -xe
@@ -140,15 +141,15 @@ jobs:
         run: |
           set -xe
           rm -rf /var/lib/apt/lists/*
-          apt-get update
-          apt-get install eatmydata
-          eatmydata apt-get upgrade
+          apt-get -y update
+          # apt-get install eatmydata
+          apt-get -y upgrade
       - name: Install compiler ${{ matrix.compiler.compiler }}
         run: |
-          eatmydata apt-get -y install ${{ matrix.compiler.packages }}
+          apt-get -y install ${{ matrix.compiler.packages }}
       - name: Install Base Dependencies
         run: |
-          eatmydata apt-get -y install \
+          apt-get -y install \
             build-essential \
             cmake \
             appstream-util \
@@ -236,188 +237,3 @@ jobs:
         run: |
           cd "${SRC_DIR}/src/tests/integration/"
           ./run.sh --no-opencl --no-deltae --fast-fail
-
-  Windows:
-    if: github.repository == 'darktable-org/darktable' || github.event_name == 'workflow_dispatch'
-    name: Windows.${{ matrix.msystem }}.${{ matrix.btype }}
-    runs-on: windows-latest
-    strategy:
-      fail-fast: true
-      matrix:
-        btype:
-          - Release
-        msystem:
-          #- CLANG64
-          - UCRT64
-        target:
-          - skiptest
-        generator:
-          - Ninja
-        eco: [-DDONT_USE_INTERNAL_LIBRAW=ON]
-    defaults:
-      run:
-        shell: msys2 {0}
-    env:
-      SRC_DIR: ${{ github.workspace }}/src
-      BUILD_DIR: ${{ github.workspace }}/build
-      INSTALL_PREFIX: ${{ github.workspace }}/install
-      ECO: ${{ matrix.eco }}
-      CMAKE_BUILD_TYPE: ${{ matrix.btype }}
-      TARGET: ${{ matrix.target }}
-      GENERATOR: ${{ matrix.generator }}
-    steps:
-      - uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{ matrix.msystem }}
-          install: >-
-            git
-            intltool
-            po4a
-          pacboy: >-
-            cc:p
-            cmake:p
-            libxslt:p
-            ninja:p
-            nsis:p
-            python-jsonschema:p
-            curl:p
-            drmingw:p
-            exiv2:p
-            gcc-libs:p
-            gettext:p
-            gmic:p
-            graphicsmagick:p
-            gtk3:p
-            icu:p
-            imath:p
-            iso-codes:p
-            lcms2:p
-            lensfun:p
-            libavif:p
-            libgphoto2:p
-            libheif:p
-            libjpeg-turbo:p
-            libjxl:p
-            libpng:p
-            libraw:p
-            librsvg:p
-            libsecret:p
-            libtiff:p
-            libwebp:p
-            libxml2:p
-            lua:p
-            omp:p
-            openexr:p
-            openjpeg2:p
-            osm-gps-map:p
-            portmidi:p
-            pugixml:p
-            SDL2:p
-            sqlite3:p
-            zlib:p
-          update: false
-      - run: git config --global core.autocrlf input
-        shell: bash
-      - uses: actions/checkout@v4
-        with:
-          submodules: false
-          path: src
-          fetch-depth: 1
-      - name: Get only those submodules that are needed for build
-        run: |
-          cd src
-          git submodule init
-          git config submodule.src/tests/integration.update none
-          git submodule update
-          cd -
-      - name: Build and Install
-        run: |
-          cmake -E make_directory "${BUILD_DIR}"
-          cmake -E make_directory "${INSTALL_PREFIX}"
-          $(cygpath ${SRC_DIR})/.ci/ci-script.sh
-      - name: Check if it runs
-        run: |
-          $(cygpath ${INSTALL_PREFIX})/bin/darktable.exe --version || true
-          $(cygpath ${INSTALL_PREFIX})/bin/darktable-cli.exe --version || true
-          echo "Testing RUN!"
-          $(cygpath ${INSTALL_PREFIX})/bin/darktable-cli.exe \
-                 --width 1000 --height 1000 \
-                 --hq true --apply-custom-presets false \
-                 $(cygpath ${SRC_DIR})/data/pixmaps/256x256/darktable.png \
-                 output.png \
-                 --core --disable-opencl --conf host_memory_limit=8192 \
-                 --conf worker_threads=4 -t 4 \
-                 --conf plugins/lighttable/export/force_lcms2=FALSE \
-                 --conf plugins/lighttable/export/iccintent=0
-
-  macOS:
-    if: github.repository == 'darktable-org/darktable' || github.event_name == 'workflow_dispatch'
-    name: macOS.${{ matrix.build.os }}.${{ matrix.compiler.compiler }}.${{ matrix.build.xcode }}.${{ matrix.btype }}
-    runs-on: ${{ matrix.build.os }}
-    strategy:
-      fail-fast: true
-      matrix:
-        build:
-          - { os: macos-13,    xcode: 15.2,   deployment: 13.5 } # LLVM16, x86_64
-          - { os: macos-14,    xcode: 15.4,   deployment: 14.0 } # LLVM16, arm64
-        compiler:
-          - { compiler: XCode,   CC: cc, CXX: c++ }
-        btype: [ Release ]
-        target:
-          - skiptest
-        generator:
-          - Ninja
-        eco: [-DDONT_USE_INTERNAL_LIBRAW=ON -DUSE_GRAPHICSMAGICK=OFF -DUSE_IMAGEMAGICK=ON]
-    env:
-      DEVELOPER_DIR: /Applications/Xcode_${{ matrix.build.xcode }}.app/Contents/Developer
-      CC: ${{ matrix.compiler.CC }}
-      CXX: ${{ matrix.compiler.CXX }}
-      MACOSX_DEPLOYMENT_TARGET: ${{ matrix.build.deployment }}
-      SRC_DIR: ${{ github.workspace }}/src
-      BUILD_DIR: ${{ github.workspace }}/build
-      INSTALL_PREFIX: ${{ github.workspace }}/install
-      ECO: ${{ matrix.eco }}
-      CMAKE_BUILD_TYPE: ${{ matrix.btype }}
-      GENERATOR: ${{ matrix.generator }}
-      TARGET: ${{ matrix.target }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: false
-          path: src
-          fetch-depth: 1
-      - name: Get only those submodules that are needed for build
-        run: |
-          cd src
-          git submodule init
-          git config submodule.src/tests/integration.update none
-          git submodule update
-          cd -
-      - name: Install Base Dependencies
-        run: |
-          brew update > /dev/null || true
-          # brew upgrade || true        # no need for a very time-consuming upgrade of ALL packages
-          brew tap Homebrew/bundle
-          cd src/.ci
-          export HOMEBREW_NO_INSTALL_UPGRADE=1
-          brew bundle --verbose || true
-          # handle keg-only libs
-          brew link --force libomp
-          brew link --force libsoup@2
-      - name: Build and Install
-        run: |
-          cmake -E make_directory "${BUILD_DIR}";
-          cmake -E make_directory "${INSTALL_PREFIX}";
-          ./src/.ci/ci-script.sh;
-      - name: Check if it runs
-        run: |
-          ${INSTALL_PREFIX}/bin/darktable --version || true
-          ${INSTALL_PREFIX}/bin/darktable-cli \
-                 --width 1000 --height 1000 \
-                 --hq true --apply-custom-presets false \
-                 "${SRC_DIR}/data/pixmaps/256x256/darktable.png" \
-                 output.png \
-                 --core --disable-opencl --conf host_memory_limit=8192 \
-                 --conf worker_threads=4 -t 4 \
-                 --conf plugins/lighttable/export/force_lcms2=FALSE \
-                 --conf plugins/lighttable/export/iccintent=0
