@@ -80,8 +80,6 @@ jobs:
             libsdl2-dev \
             libsecret-1-dev \
             libsqlite3-dev \
-            libtiff5-dev \
-            libwebp-dev \
             libx11-dev \
             libxml2-dev \
             libxml2-utils \
@@ -104,6 +102,8 @@ jobs:
             libimath-dev \
             libopenexr-dev \
             libjxl-dev \
+            libtiff-dev \
+            libwebp-dev \
             x11proto-dev \
             libxfixes-dev;
       - name: Build and install a more recent version of exiv2
