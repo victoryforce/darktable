@@ -121,8 +121,10 @@ static inline int _read_chunky_8(tiff_t *t, uint16_t photometric)
   return 1;
 }
 
-static inline int _read_chunky_16(tiff_t *t)
+static inline int _read_chunky_16(tiff_t *t, uint16_t photometric)
 {
+  const gboolean need_invert = (photometric == PHOTOMETRIC_MINISWHITE);
+
   for(uint32_t row = 0; row < t->height; row++)
   {
     uint16_t *in = ((uint16_t *)t->buf);
@@ -133,7 +135,9 @@ static inline int _read_chunky_16(tiff_t *t)
 
     for(uint32_t i = 0; i < t->width; i++, in += t->spp, out += 4)
     {
-      out[0] = ((float)in[0]) * (1.0f / 65535.0f);
+      out[0] = need_invert
+               ? 1.0f - ((float)in[0]) * (1.0f / 65535.0f)
+               :        ((float)in[0]) * (1.0f / 65535.0f);
 
       if(t->spp < 3)  // mono, maybe plus alpha channel
       {
@@ -529,7 +533,7 @@ dt_imageio_retval_t dt_imageio_open_tiff(dt_image_t *img,
   }
   else if(t.bpp == 16 && t.sampleformat == SAMPLEFORMAT_UINT)
   {
-    ok = _read_chunky_16(&t);
+    ok = _read_chunky_16(&t, photometric);
   }
   else if(t.bpp == 16 && t.sampleformat == SAMPLEFORMAT_IEEEFP)
   {
