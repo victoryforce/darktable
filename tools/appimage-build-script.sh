@@ -48,6 +48,14 @@ sed -i 's/\/usr\/bin\///' ../AppDir/usr/share/applications/org.darktable.darktab
 mkdir -p ../AppDir/usr/share/lensfun
 cp -a /var/lib/lensfun-updates/* ../AppDir/usr/share/lensfun
 
+# Include gphoto2 driver libraries.
+# We have to set the CAMLIBS environment variable in AppRun
+# so that libgphoto2 can find these drivers.
+mkdir -p ../AppDir/usr/lib/libgphoto2
+cp -a /usr/lib/x86_64-linux-gnu/libgphoto2/* ../AppDir/usr/lib/libgphoto2
+
+# export GPHOTO2_VERSION=/usr/lib/libgphoto2/`ls -1 --group-directories-first /ucrt64/lib/libgphoto2|head -1`
+
 # Since linuxdeploy is itself an AppImage, we don't rely on it being installed
 # on the build system, but download it every time we run this script. If that
 # doesn't suit you (for example, you want to build an AppImage without an
