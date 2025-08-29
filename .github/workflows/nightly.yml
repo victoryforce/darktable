@@ -47,6 +47,7 @@ jobs:
             gettext \
             git \
             gdb \
+            glib-networking \
             intltool \
             libatk1.0-dev \
             libcairo2-dev \
