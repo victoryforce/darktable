@@ -54,6 +54,9 @@ cp -a /var/lib/lensfun-updates/* ../AppDir/usr/share/lensfun
 mkdir -p ../AppDir/usr/lib/libgphoto2
 cp -a /usr/lib/x86_64-linux-gnu/libgphoto2/* ../AppDir/usr/lib/libgphoto2
 
+mkdir -p ../AppDir/usr/lib/gio
+cp -a /usr/lib/x86_64-linux-gnu/gio/* ../AppDir/usr/lib/gio
+
 # Since linuxdeploy is itself an AppImage, we don't rely on it being installed
 # on the build system, but download it every time we run this script. If that
 # doesn't suit you (for example, you want to build an AppImage without an
