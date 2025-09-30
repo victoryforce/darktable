@@ -20,6 +20,8 @@ export IOLIBS=$HERE/usr/lib/libgphoto2_port/`ls -1 --group-directories-first $HE
 
 export GIO_EXTRA_MODULES=$HERE/usr/lib/gio/modules
 
+export LIBHEIF_PLUGIN_PATH=$HERE/usr/lib/libheif/plugins
+
 if [[ ! -z $APPIMAGE ]] ; then
   BINARY_NAME=$(basename "$ARGV0")
   if [[ ! -z "$1" ]] && [[ -e "$HERE/usr/bin/$1" ]] ; then

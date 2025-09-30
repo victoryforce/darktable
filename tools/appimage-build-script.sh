@@ -54,6 +54,13 @@ cp -a /var/lib/lensfun-updates/* ../AppDir/usr/share/lensfun
 mkdir -p ../AppDir/usr/lib/libgphoto2
 cp -a /usr/lib/x86_64-linux-gnu/libgphoto2/* ../AppDir/usr/lib/libgphoto2
 
+# Include libheif decoder plugins. We also have to set the LIBHEIF_PLUGIN_PATH
+# environment variable in AppRun.wrapped accordingly when starting
+# AppImage so that libheif can find these plugins.
+mkdir -p ../AppDir/usr/lib/libheif/plugins
+cp -a /usr/lib/x86_64-linux-gnu/libheif/plugins/* ../AppDir/usr/lib/libheif/plugins
+cp -a /usr/lib/x86_64-linux-gnu/libde265* ../AppDir/usr/lib
+
 # Include gphoto2 port libraries. We also have to set the IOLIBS
 # environment variable in AppRun.wrapped accordingly when starting
 # AppImage so that libgphoto2 can find these drivers.
