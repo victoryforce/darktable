@@ -369,26 +369,26 @@ static const dt_magic_bytes_t _magic_signatures[] = {
   { DT_FILETYPE_OTHER_LDR, FALSE, 0, 4, dt_imageio_open_exotic,
     { 0x80, 0x2A, 0x5F, 0xD7 } },
   // ASCII NetPNM (pbm)
-  { DT_FILETYPE_PNM, FALSE, 0, 3, dt_imageio_open_exotic,
-    { 'P', '1', 0x0A } },
+  { DT_FILETYPE_PNM, FALSE, 0, 2, dt_imageio_open_exotic,
+    { 'P', '1' } },
   // ASCII NetPNM (pgm)
-  { DT_FILETYPE_PNM, FALSE, 0, 3, dt_imageio_open_exotic,
-    { 'P', '2', 0x0A } },
+  { DT_FILETYPE_PNM, FALSE, 0, 2, dt_imageio_open_exotic,
+    { 'P', '2' } },
   // ASCII NetPNM (ppm)
-  { DT_FILETYPE_PNM, FALSE, 0, 3, dt_imageio_open_exotic,
-    { 'P', '3', 0x0A } },
+  { DT_FILETYPE_PNM, FALSE, 0, 2, dt_imageio_open_exotic,
+    { 'P', '3' } },
   // binary NetPNM (pbm)
-  { DT_FILETYPE_PNM, FALSE, 0, 3, dt_imageio_open_pnm,
-    { 'P', '4', 0x0A } },
+  { DT_FILETYPE_PNM, FALSE, 0, 2, dt_imageio_open_pnm,
+    { 'P', '4' } },
   // binary NetPNM (pgm)
-  { DT_FILETYPE_PNM, FALSE, 0, 3, dt_imageio_open_pnm,
-    { 'P', '5', 0x0A } },
+  { DT_FILETYPE_PNM, FALSE, 0, 2, dt_imageio_open_pnm,
+    { 'P', '5' } },
   // binary NetPNM (ppm)
-  { DT_FILETYPE_PNM, FALSE, 0, 3, dt_imageio_open_pnm,
-    { 'P', '6', 0x0A } },
+  { DT_FILETYPE_PNM, FALSE, 0, 2, dt_imageio_open_pnm,
+    { 'P', '6' } },
   // binary NetPNM "Portable Arbitrary Map" (pam)
-  { DT_FILETYPE_PNM, FALSE, 0, 3, dt_imageio_open_exotic,
-    { 'P', '7', 0x0A } },
+  { DT_FILETYPE_PNM, FALSE, 0, 2, dt_imageio_open_exotic,
+    { 'P', '7' } },
   // Windows BMP bitmap image
   { DT_FILETYPE_BMP, FALSE, 0, 2, dt_imageio_open_exotic,
     { 'B', 'M' } },
