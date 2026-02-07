@@ -59,12 +59,13 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v7
       - name: Update nightly release
-        uses: andelf/nightly-release@main
+        uses: softprops/action-gh-release@v2.4.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: nightly
           prerelease: true
+          draft: true
           name: 'Darktable nightly build $$'
           # Please do not modify the body text by adding line breaks in paragraphs, as this text should display well on screens of different widths
           body: |
