@@ -10,6 +10,27 @@ permissions:
   actions: write  # We need this to be able to cancel workflow if job fails
 
 jobs:
+  tagnightly:
+    permissions:
+      # We need write permission to update the nightly tag
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout master
+      uses: actions/checkout@v6
+      with:
+        submodules: false
+        path: src
+        fetch-depth: 1
+    - name: Force move 'nightly' tag
+      if: github.ref_name == 'master' # will be true only for nightly builds
+      run: |
+        pushd src
+        git tag --force nightly
+        git push origin nightly --force
+        popd
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   AppImage:
     if: github.repository == 'darktable-org/darktable' || github.event_name == 'workflow_dispatch'
     name: Nightly darktable AppImage
@@ -406,7 +427,6 @@ jobs:
           retention-days: 2
 
   upload_to_release:
-    if: github.ref_name == 'master'
     permissions:
       # We need write permission to update the nightly tag
       contents: write
@@ -416,13 +436,13 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v7
       - name: Update nightly release
-        uses: andelf/nightly-release@main
+        uses: softprops/action-gh-release@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: nightly
           prerelease: true
-          name: 'Darktable nightly build $$'
+          name: 'Darktable nightly build'
           # Please do not modify the body text by adding line breaks in paragraphs, as this text should display well on screens of different widths
           body: |
             This is a nightly build of Darktable.
