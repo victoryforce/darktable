@@ -10,27 +10,6 @@ permissions:
   actions: write  # We need this to be able to cancel workflow if job fails
 
 jobs:
-  tagnightly:
-    permissions:
-      # We need write permission to update the nightly tag
-      contents: write
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout master
-      uses: actions/checkout@v6
-      with:
-        submodules: false
-        path: src
-        fetch-depth: 1
-    - name: Force move 'nightly' tag
-      if: github.ref_name == 'master' # will be true only for nightly builds
-      run: |
-        pushd src
-        git tag --force nightly
-        git push origin nightly --force
-        popd
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   AppImage:
     if: github.repository == 'darktable-org/darktable' || github.event_name == 'workflow_dispatch'
     name: Nightly darktable AppImage
@@ -426,12 +405,38 @@ jobs:
           name: artifact-macos-${{ runner.arch }}
           retention-days: 2
 
+  set_nightly_tag:
+    if: github.ref_name == 'master' # will be true only for nightly builds
+    permissions:
+      # We need write permission to update the nightly tag
+      contents: write
+    runs-on: ubuntu-latest
+    name: Nightly tag maintenance
+    needs: [AppImage, Windows, macOS]
+    steps:
+    - name: Checkout master
+      uses: actions/checkout@v6
+      with:
+        ref: master
+        submodules: false
+        path: src
+        fetch-depth: 1
+    - name: Force move 'nightly' tag
+      run: |
+        pushd src
+        git tag --force nightly
+        git push origin nightly --force
+        popd
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   upload_to_release:
     permissions:
       # We need write permission to update the nightly tag
       contents: write
     runs-on: ubuntu-latest
-    needs: [AppImage, Windows, macOS]
+    name: Creating new release
+    needs: [AppImage, Windows, macOS, set_nightly_tag]
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v7
