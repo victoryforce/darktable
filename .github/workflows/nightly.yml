@@ -405,39 +405,31 @@ jobs:
           name: artifact-macos-${{ runner.arch }}
           retention-days: 2
 
-  set_nightly_tag:
-    if: github.ref_name == 'master' # will be true only for nightly builds
-    permissions:
-      # We need write permission to update the nightly tag
-      contents: write
-    runs-on: ubuntu-latest
-    name: Nightly tag maintenance
-    needs: [AppImage, Windows, macOS]
-    steps:
-    - name: Checkout master
-      uses: actions/checkout@v6
-      with:
-        ref: master
-        submodules: false
-        path: src
-        fetch-depth: 1
-    - name: Force move 'nightly' tag
-      run: |
-        pushd src
-        git tag --force nightly
-        git push origin nightly --force
-        popd
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   upload_to_release:
     permissions:
       # We need write permission to update the nightly tag
       contents: write
     runs-on: ubuntu-latest
     name: Creating new release
-    needs: [AppImage, Windows, macOS, set_nightly_tag]
+    needs: [AppImage, Windows, macOS]
     steps:
+      - name: Checkout master
+        if: github.ref_name == 'master' # will be true only for nightly builds
+        uses: actions/checkout@v6
+        with:
+          ref: master
+          submodules: false
+          path: src
+          fetch-depth: 1
+      - name: Force move 'nightly' tag
+        if: github.ref_name == 'master' # will be true only for nightly builds
+        run: |
+          pushd src
+          git tag --force nightly
+          git push origin nightly --force
+          popd
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Download artifacts
         uses: actions/download-artifact@v7
       - name: Update nightly release
