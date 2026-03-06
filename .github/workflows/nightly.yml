@@ -190,7 +190,6 @@ jobs:
           - Release
         msystem:
           - UCRT64
-          - CLANGARM64
         target:
           - skiptest
         generator:
@@ -199,8 +198,6 @@ jobs:
         include:
           - msystem: UCRT64
             os: windows-latest
-          - msystem: CLANGARM64
-            os: windows-11-arm
     defaults:
       run:
         shell: msys2 {0}
@@ -341,7 +338,6 @@ jobs:
       matrix:
         build:
           - { os: macos-14,       xcode: 16.2, deployment: 14.0 } # AppleClang 16, arm64
-          - { os: macos-15-intel, xcode: 26.2, deployment: 15.0 } # AppleClang 17, x86_64
         compiler:
           - { compiler: XCode,   CC: cc, CXX: c++ }
         btype: [ Release ]
