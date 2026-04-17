@@ -108,6 +108,7 @@ jobs:
           apt-get --yes update
           apt-get --yes install eatmydata
           eatmydata apt-get --yes upgrade
+          exit 1
       - name: Try fallback mirror if default one failed
         if: failure() && steps.base_update.outcome == 'failure'
         run: |
