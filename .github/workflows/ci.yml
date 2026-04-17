@@ -100,7 +100,23 @@ jobs:
         run: |
           sed -i 's/archive\.ubuntu/azure\.archive\.ubuntu/' /etc/apt/sources.list.d/ubuntu.sources
       - name: Update base packages
+        id: base_update
         timeout-minutes: 1
+        run: |
+          set -xe
+          rm -rf /var/lib/apt/lists/*
+          apt-get --yes update
+          apt-get --yes install eatmydata
+          eatmydata apt-get --yes upgrade
+      - name: Try fallback mirror if default one failed
+        if: failure() && steps.base_update.outcome == 'failure'
+        run: |
+          sed -i 's/archive\.ubuntu/azure\.archive\.ubuntu/' /etc/apt/sources.list.d/ubuntu.sources
+          # Let's provide the information so that the check
+          # in the next step allows it to run and try again
+          echo "TRY_NEW_MIRROR=yes" >> $GITHUB_ENV
+      - name: Update base from other mirror if we need to
+        if: ${{ env.TRY_NEW_MIRROR == 'yes' }}
         run: |
           set -xe
           rm -rf /var/lib/apt/lists/*
