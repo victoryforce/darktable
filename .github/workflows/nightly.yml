@@ -82,7 +82,6 @@ jobs:
             libsdl2-dev \
             libsecret-1-dev \
             libsqlite3-dev \
-            libtiff5-dev \
             libwebp-dev \
             libx11-dev \
             libxml2-dev \
@@ -116,6 +115,7 @@ jobs:
             libopenh264-dev \
             libopenjp2-7-dev \
             libsharpyuv-dev \
+            libtiff-dev \
             libx265-dev \
             libwebm-dev \
             x11proto-dev \
