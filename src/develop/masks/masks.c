@@ -1505,16 +1505,22 @@ void dt_masks_reset_show_masks_icons(void)
        && !(m->flags() & IOP_FLAGS_NO_MASKS))
     {
       dt_iop_gui_blend_data_t *bd = m->blend_data;
-      if(!bd) break;  // TODO: this doesn't look right. Why do we
-                      // break the while look as soon as one module
-                      // has no blend_data?
+      if(!bd) continue;  // skip the rest if the module has no blend_data
       bd->masks_shown = DT_MASKS_EDIT_OFF;
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bd->masks_edit), FALSE);
-      gtk_widget_queue_draw(bd->masks_edit);
+
+      if(bd->masks_edit)
+      {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bd->masks_edit), FALSE);
+        gtk_widget_queue_draw(bd->masks_edit);
+      }
+
       for(int n = 0; n < DEVELOP_MASKS_NB_SHAPES; n++)
       {
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bd->masks_shapes[n]), 0);
-        gtk_widget_queue_draw(bd->masks_shapes[n]);
+        if(bd->masks_shapes[n])
+        {
+          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bd->masks_shapes[n]), 0);
+          gtk_widget_queue_draw(bd->masks_shapes[n]);
+        }
       }
     }
   }
