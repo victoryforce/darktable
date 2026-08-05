@@ -1486,11 +1486,11 @@ void dt_masks_reset_form_gui(void)
     bd->masks_shown = DT_MASKS_EDIT_OFF;
 
     if(bd->masks_edit)
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bd->masks_edit), 0);
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bd->masks_edit), FALSE);
 
     for(int n = 0; n < DEVELOP_MASKS_NB_SHAPES; n++)
       if(bd->masks_shapes[n])
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bd->masks_shapes[n]), 0);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bd->masks_shapes[n]), FALSE);
   }
 }
 
@@ -1518,7 +1518,7 @@ void dt_masks_reset_show_masks_icons(void)
       {
         if(bd->masks_shapes[n])
         {
-          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bd->masks_shapes[n]), 0);
+          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bd->masks_shapes[n]), FALSE);
           gtk_widget_queue_draw(bd->masks_shapes[n]);
         }
       }
