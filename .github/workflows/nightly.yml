@@ -275,6 +275,12 @@ jobs:
             webp-pixbuf-loader:p
             zlib:p
           update: true
+      - name: Install the latest not yet broken version of cairo
+        run: |
+          # It's a temporary fix, to be removed when the issue with cairo will be resolved
+          REPO="$(echo "${MSYSTEM:-UCRT64}" | tr '[:upper:]' '[:lower:]')"
+          # still not correct... we have to create package name prefixes for x86_64 and arm64  
+          pacman -U --noconfirm https://repo.msys2.org/mingw/${REPO}/mingw-w64-ucrt-x86_64-cairo-1.18.4-4-any.pkg.tar.zst
       - name: Build and install the latest compatible version of exiv2
         run: |
           git clone --branch v0.27.7 --depth 1 https://github.com/Exiv2/exiv2 src-exiv2
