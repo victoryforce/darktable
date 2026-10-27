@@ -3836,21 +3836,6 @@ void dt_database_show_error(const dt_database_t *db, const char *dblabel)
 {
   if(!db->lock_acquired)
   {
-    char lck_pathname[1024];
-    snprintf(lck_pathname, sizeof(lck_pathname), "%s.lock", db->error_dbfilename);
-    char *lck_dirname = g_strdup(lck_pathname);
-    char *last_dirsep_position = g_strrstr(lck_dirname, G_DIR_SEPARATOR_S);
-    char library_lock_basename[1024];
-    if(strlen(dblabel) == 0)
-      strncpy(library_lock_basename, "library.db.lock",
-              sizeof(library_lock_basename));
-    else
-      snprintf(library_lock_basename, sizeof(library_lock_basename),
-               "library-%s.db.lock", dblabel);
-
-    if(last_dirsep_position)
-      *last_dirsep_position = '\0';  // make lck_dirname contain only the directory name
-
     // clang-format off
     char *label_text = g_markup_printf_escaped(
         _("\n"
@@ -3867,48 +3852,10 @@ void dt_database_show_error(const dt_database_t *db, const char *dblabel)
       db->error_other_pid);
     // clang-format on
 
-    gboolean delete_lockfiles =
       dt_gui_show_standalone_yes_no_dialog(_("error starting darktable"),
                                            label_text,
-                                           _("_cancel"),
-                                           _("_delete database lock files"));
-
-    if(delete_lockfiles)
-    {
-      gboolean really_delete_lockfiles =
-        dt_gui_show_standalone_yes_no_dialog
-        (_("are you sure?"),
-         _("\ndo you really want to delete the lock files?\n"), _("_no"), _("_yes"));
-      if(really_delete_lockfiles)
-      {
-        int status = 0;
-
-        char *lck_filename = g_strconcat(lck_dirname, "/data.db.lock", NULL);
-        if(g_access(lck_filename, F_OK) != -1)
-          status += remove(lck_filename);
-        g_free(lck_filename);
-
-        lck_filename = g_strconcat(lck_dirname, G_DIR_SEPARATOR_S, library_lock_basename, NULL);
-        if(g_access(lck_filename, F_OK) != -1)
-          status += remove(lck_filename);
-
-        if(status==0)
-          dt_gui_show_standalone_yes_no_dialog
-            (_("done"),
-             _("\nsuccessfully deleted the lock files.\nyou can now restart darktable\n"),
-             _("_ok"), NULL);
-        else
-          dt_gui_show_standalone_yes_no_dialog
-            (_("error"), g_markup_printf_escaped(
-              _("\nat least one file could not be deleted.\n"
-                "you may try to manually delete the files <i>data.db.lock</i> and <i>%s</i>\n"
-                "in folder <a href=\"file:///%s\">%s</a>.\n"), lck_filename, lck_dirname, lck_dirname),
-             _("_ok"), NULL);
-        g_free(lck_filename);
-      }
-    }
-
-    g_free(lck_dirname);
+                                           _("_close"),
+                                           NULL);
     g_free(label_text);
   }
 
