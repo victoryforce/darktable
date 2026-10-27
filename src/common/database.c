@@ -3847,7 +3847,7 @@ void dt_database_show_error(const dt_database_t *db, const char *dblabel)
     else
       snprintf(library_lock_basename, sizeof(library_lock_basename),
                "library-%s.db.lock", dblabel);
-    
+
     if(last_dirsep_position)
       *last_dirsep_position = '\0';  // make lck_dirname contain only the directory name
 
@@ -3858,25 +3858,13 @@ void dt_database_show_error(const dt_database_t *db, const char *dblabel)
           "\n"
           "  How to solve this problem?\n"
           "\n"
-          "  1 - If another darktable instance is already open, \n"
-          "      click cancel and either use that instance or close it before attempting to rerun darktable \n"
-          "      (process ID <i><b>%d</b></i> created the database locks)\n"
+          "  1 - If another darktable instance is already open, close this window and either use that instance\n"
+          "      or close it before new launch of darktable\n"
           "\n"
-          "  2 - If you closed darktable within the past few minutes, it may still be running in the background \n"
-          "      to export images, update sidecar files, or perform database maintenance. Try again once \n"
-          "      this processing finishes.\n"
-          "\n"
-          "  3 - If you are not confident in your ability to correctly deal with processes in the OS, \n"
-          "      it would be safer to restart the session or reboot your computer after some time (few minutes). \n"
-          "      This will close all running programs and hopefully close the databases correctly. \n"
-          "\n"
-          "  4 - If you have done this or are certain that no other instances of darktable are running, \n"
-          "      this probably means that the last instance was ended abnormally. \n"
-          "      Click on the \"delete database lock files\" button to delete the files <i>data.db.lock</i> and <i>%s</i>. \n"
-          "\n\n"
-          "      <i><u>Caution!</u> Do not delete these files without first undertaking the above checks, \n"
-          "      otherwise you risk generating serious inconsistencies in your database.</i>\n"),
-      db->error_other_pid, library_lock_basename);
+          "  2 - If you closed darktable window recently (up to a few minutes), it may still not be exited yet,\n"
+          "      performing tasks such as exporting images or maintaining the database. Try again once this work\n"
+          "      is finished and the program with PID <b>%d</b> has finally ended.\n"),
+      db->error_other_pid);
     // clang-format on
 
     gboolean delete_lockfiles =
