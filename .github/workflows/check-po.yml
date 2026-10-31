@@ -22,13 +22,24 @@ jobs:
   po-check:
     if: github.repository == 'darktable-org/darktable' || github.event_name == 'workflow_dispatch'
     name: Check the PO files for correctness
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: false
           path: src
           fetch-depth: 1
+
+      - name: Run check-jsonschema validation
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install python3-check-jsonschema
+          cd src/data
+          for jsonfile in noiseprofiles.json wb_presets.json; do
+            echo "Checking $jsonfile"
+            check-jsonschema --schemafile `basename -s .json $jsonfile`.schema $jsonfile
+            test $? -eq 0 || exit 1
+          done
 
       - name: Check to see if msgfmt reports an error
         run: |
