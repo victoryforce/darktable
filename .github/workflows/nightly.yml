@@ -185,7 +185,7 @@ jobs:
       - name: Build AppImage
         run: |
           cd src
-          bash tools/appimage-build-script.sh
+          bash tools/appimage-build-script.sh --disable-ai
       - name: Package upload
         uses: actions/upload-artifact@v7
         with:
