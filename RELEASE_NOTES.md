@@ -1287,6 +1287,8 @@ changes (where available).
   modified" also forgot its earlier values and gave the as-shot white
   balance.
 
+- Fixed AI raw denoise making Bayer images brighter than the original.
+
 ## Lua
 
 ### API Version
